@@ -7,12 +7,14 @@ from utils.util import get_file_list
 # from reader.formatter.AYYC import AYPredictionFormatter
 
 from word2vec.word2vec import init_transformer
+from reader.formatter.MusicRecomPair import MusicPairFormatter
 
 
 def init_formatter(config):
     global formatter
     useable_list = {
         # "AYYC": AYPredictionFormatter
+        "LRMM": MusicPairFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
         formatter = useable_list[config.get("data", "formatter")](config)
