@@ -4,6 +4,7 @@ import random
 import os
 
 from utils.util import get_file_list
+# from reader.formatter.AYYC import AYPredictionFormatter
 
 from word2vec.word2vec import init_transformer
 
@@ -11,7 +12,7 @@ from word2vec.word2vec import init_transformer
 def init_formatter(config):
     global formatter
     useable_list = {
-        
+        # "AYYC": AYPredictionFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
         formatter = useable_list[config.get("data", "formatter")](config)
