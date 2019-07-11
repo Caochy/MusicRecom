@@ -30,7 +30,8 @@ class LatentRelMM(nn.Module):
     def init_multi_gpu(self, device):
         self.user_encoder = nn.DataParallel(self.user_encoder)
         self.music_encoder = nn.DataParallel(self.music_encoder)
-        self.memory = nn.DataParallel(self.memory)
+        # self.memory = nn.DataParallel(self.memory)
+        self.out = nn.DataParallel(self.out)
 
     def forward(self, data, criterion, config, usegpu, acc_result = None):
         user = data['users']
@@ -42,15 +43,23 @@ class LatentRelMM(nn.Module):
         music = self.music_encoder(music)
 
         s = user * music
+        
+        out_result = self.out(s)
+
         s = s.matmul(torch.transpose(self.memory, 0, 1))
         s = torch.softmax(s, dim = 1)
         rel = s.matmul(self.memory)
         
-        out_result = self.out(s)
 
         score = user + rel - music
-        score = torch.norm(score, dim = 0)
-        mask = 2 * label - 1
+        
+        #print(score.shape)
+
+        score = torch.norm(score, dim = 1)
+        mask = (2 * label - 1).float()
+        
+        #print(mask.shape)
+        #print(score.shape)
 
         loss = torch.mean(mask * score) + criterion(out_result, label)
 
