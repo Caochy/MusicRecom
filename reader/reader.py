@@ -7,7 +7,7 @@ from utils.util import get_file_list
 # from reader.formatter.AYYC import AYPredictionFormatter
 
 from word2vec.word2vec import init_transformer
-from reader.formatter.MusicRecomPair import MusicPairFormatter
+from reader.formatter.MusicPairFormatter import MusicPairFormatter
 
 
 def init_formatter(config):

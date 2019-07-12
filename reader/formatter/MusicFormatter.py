@@ -10,8 +10,8 @@ class MusicFormatter:
         singer_num_path = config.get('data', 'singer_num_path')
         genre_num_path = config.get('data', 'genre_num_path')
 
-        singer_num_th = config.get('train', 'singer_num_th')
-        genre_num_th = config.get('train', 'genre_num_th')
+        singer_num_th = config.getint('train', 'singer_num_th')
+        genre_num_th = config.getint('train', 'genre_num_th')
         
         '''song information'''
         print('init song information')
@@ -57,6 +57,7 @@ class MusicFormatter:
 
     def check(self, songid, config):
         try:
+            songid = int(songid)
             #data = json.loads(data)
             if songid not in self.song_info:
                 return None
@@ -65,7 +66,8 @@ class MusicFormatter:
             if len(self.song_info[songid]['features']) == 0:
                 return None
             return True
-        except:
+        except Exception as err:
+            print(err)
             return None
 
 
@@ -74,22 +76,30 @@ class MusicFormatter:
 
         
         for data in songids:
-            music['features'].append(self.song_info[data]['features'])
-            music['lyric'].append(self.lookup(self.song_info[data]['lyric'], self.lyric_len))
+            data = int(data)
+            data_info = self.song_info[data]
+            music['features'].append(data_info['features'])
+            music['lyric'].append(self.lookup(data_info['lyric'], self.lyric_len))
             
-            singer = np.zeros(len(self.singer2id))
-            singer[self.singer2id[data['singer_name']]] = 1
+            singer = np.zeros(len(self.singer2id) + 1)
+            if data_info['singer'] in self.singer2id:
+                singer[self.singer2id[data_info['singer']]] = 1
+            else:
+                singer[len(self.singer2id)] = 1
             music['singer'].append(singer)
 
-            genre = np.zeros(len(self.genre2id))
-            genre[self.genre2id[data['genre']]] = 1
+            genre = np.zeros(len(self.genre2id) + 1)
+            if data_info['genre'] in self.genre2id:
+                genre[self.genre2id[data_info['genre']]] = 1
+            else:
+                genre[len(self.genre2id)] = 1
             music['genre'].append(genre)
         
         
         music['features'] = torch.tensor(music['features'], dtype = torch.float32)
         music['lyric'] = torch.tensor(music['lyric'], dtype = torch.long)
-        music['singer'] = torch.tensor(music['singer'], dtype = torch.long)
-        music['genre'] = torch.tensor(music['genre'], dtype = torch.long)
+        music['singer'] = torch.tensor(music['singer'], dtype = torch.float32)
+        music['genre'] = torch.tensor(music['genre'], dtype = torch.float32)
         
 
         return music

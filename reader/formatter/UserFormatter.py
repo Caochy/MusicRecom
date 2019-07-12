@@ -19,10 +19,12 @@ class UserFormatter:
         try:
             # data = json.loads(data)
 
-            data[0] = int(data[0])
-            if data[0] not in self.user_info:
+            data = int(data)
+            if data not in self.user_info:
                 return None
-        except:
+            return True
+        except Exception as err:
+            print(err)
             return None
 
 
@@ -30,6 +32,7 @@ class UserFormatter:
         users = {'articles': [], 'moments': []}
         
         for data in userids:
+            data = int(data)
             users['moments'].append(self.user_info[data]['moments_lda'])
             users['articles'].append(self.user_info[data]['article'])
         

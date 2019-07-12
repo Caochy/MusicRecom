@@ -10,7 +10,7 @@ from .UserFormatter import UserFormatter
 class MusicPairFormatter:
     def __init__(self, config):
         self.music = MusicFormatter(config)
-        self.user = MusicFormatter(config)
+        self.user = UserFormatter(config)
         
 
     def check(self, data, config):
@@ -19,12 +19,13 @@ class MusicPairFormatter:
 
             data[0] = int(data[0])
             data[1] = int(data[1])
-            if self.user.check(data[0]):
+            if self.user.check(data[0], config) is None:
                 return None
-            if self.music.check(data[1]):
+            if self.music.check(data[1], config) is None:
                 return None
             return data
-        except:
+        except Exception as err:
+            print(err)
             return None
 
 
@@ -38,13 +39,16 @@ class MusicPairFormatter:
 
         labels = []
         for d in alldata:
+            labels.append(d[2])
+            '''
             if d[2] > 4.5:
                 labels.append(1)
             else:
                 labels.append(0)
+            '''
         music = self.music.format(musicids, config, mode)
-        users = self.users.format(userids, config, mode)
-
+        users = self.user.format(userids, config, mode)
+        labels = torch.tensor(labels, dtype = torch.long)
         
         '''
         label2id = {'dislike': 0, 'like': 1}
