@@ -25,6 +25,7 @@ class LatentRelMM(nn.Module):
 
         self.memory = nn.Parameter(torch.Tensor(self.N, self.hidden))
         self.out = nn.Linear(self.hidden, 2)
+        self.th = 5
 
 
     def init_multi_gpu(self, device):
@@ -61,7 +62,7 @@ class LatentRelMM(nn.Module):
         #print(mask.shape)
         #print(score.shape)
 
-        loss = torch.mean(mask * score) + criterion(out_result, label)
+        loss = torch.mean(mask * score) # + criterion(out_result, label)
 
         accu, accu_result = calc_accuracy(out_result, label, config, acc_result)
         return {"loss": loss, "accuracy": accu, "result": torch.max(out_result, dim=1)[1].cpu().numpy(), "x": out_result,

@@ -39,13 +39,13 @@ class MusicPairFormatter:
 
         labels = []
         for d in alldata:
-            labels.append(d[2])
-            '''
+            #labels.append(d[2])
+            
             if d[2] > 4.5:
                 labels.append(1)
             else:
                 labels.append(0)
-            '''
+            
         music = self.music.format(musicids, config, mode)
         users = self.user.format(userids, config, mode)
         labels = torch.tensor(labels, dtype = torch.long)
