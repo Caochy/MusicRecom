@@ -20,6 +20,13 @@ class UserEncoder(nn.Module):
 
         self.feature = nn.Linear(self.article_feature_len, self.hidden)
         self.moments_lda = nn.Linear(self.moments_lda_len, self.hidden)
+        
+        self.UserEmb = nn.Embedding(190662, self.hidden)
+        self.age = nn.Embedding(6, self.hidden)
+        self.gender = nn.Embedding(2, self.hidden)
+
+        self.out = nn.Linear(5 * self.hidden, 2 * self.hidden)
+
 
     def init_multi_gpu(self, device):
         # self.bert = nn.DataParallel(self.bert, device_ids=device)
@@ -30,11 +37,19 @@ class UserEncoder(nn.Module):
     def forward(self, user):
         article = user['articles']
         moments = user['moments']
+        uemb = user['id']
+        age = user['age']
+        gender = user['gender']
 
         
         article = self.feature(article)
         moments = self.moments_lda(moments)
 
+        uemb = self.UserEmb(uemb)
+        age = self.age(age)
+        gender = self.gender(gender)
 
-        return torch.cat([article, moments], dim = 1)
+        out = torch.cat([uemb, age, gender, article, moments], dim = 1)
+        return self.out(out)
+
 

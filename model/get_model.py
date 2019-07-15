@@ -3,11 +3,14 @@
 #from model.model.basic_model import CV_pay
 
 from model.model.LRMM import LatentRelMM
+from model.model.DeepInterest import DeepInterest
+
 
 model_list = {
     #"LSTM": LSTM,
     #"TextCNN": TextCNN,
-    "LRMM": LatentRelMM    
+    "LRMM": LatentRelMM,
+    "DeepInterest": DeepInterest
 }
 
 

@@ -21,15 +21,30 @@ class MusicEncoder(nn.Module):
         self.feature = nn.Linear(self.song_feature_len, self.hidden)
         self.lyric = nn.Linear(768, self.hidden)
 
-        self.singers = nn.Linear(417, self.hidden) # th = 20
-        self.genre = nn.Linear(18, self.hidden) # th 100
+        #self.singers = nn.Linear(417, self.hidden) # th = 20
+        self.singers = nn.Embedding(417, self.hidden)
+        #self.genre = nn.Linear(18, self.hidden) # th 100
+        self.genre = nn.Embedding(18, self.hidden)
+        
+        self.MusicEmb = nn.Embedding(42800, self.hidden)
+        
 
-        self.out = nn.Linear(3 * self.hidden, self.hidden * 2)
+        self.out = nn.Linear(4 * self.hidden, self.hidden * 2)
 
-    def init_multi_gpu(self, device):
-        #self.bert = nn.DataParallel(self.bert, device_ids=device)
-        self.feature = nn.DataParallel(self.feature, device_ids=device)
-        self.lyric = nn.DataParallel(self.lyric, device_ids=device)
+    
+    def forward_history(self, history):
+        batch = history['id'].shape[0]
+        k = history['id'].shape[1]
+
+        for key in history:
+            # print(key, batch, k, history[key].shape)
+            
+            history[key] = history[key].view(batch * k, -1)
+
+        out = self.forward(history)
+        out = out.view(batch, k, self.hidden * 2)
+        
+        return out
 
 
     def forward(self, music):
@@ -39,13 +54,18 @@ class MusicEncoder(nn.Module):
         singers = music['singer']
         genre = music['genre']
 
+        memb = music['id']
 
-
-        feature = self.feature(feature)
-        singers = self.singers(singers)
-        genre = self.genre(genre)
         
-        embs = torch.cat([feature, singers, genre], dim = 1)
+        #print('singer', singers.shape)
+
+        feature = self.feature(feature).squeeze()
+        singers = self.singers(singers).squeeze()
+        genre = self.genre(genre).squeeze()
+
+        memb = self.MusicEmb(memb).squeeze()
+
+        embs = torch.cat([memb, feature, singers, genre], dim = 1)
         return self.out(embs)
         
         '''

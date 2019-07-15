@@ -26,6 +26,13 @@ class MusicFormatter:
 
         self.tokenizer = BertTokenizer.from_pretrained(os.path.join(config.get("model", "bert_path"), 'vocab.txt'))
         
+        print('the number of song: ', len(self.song_info))
+        
+        '''song2id'''
+        self.song2id = {}
+        for key in self.song_info:
+            self.song2id[key] = len(self.song2id)
+
 
         '''singer2id'''
         singer_num = json.load(open(singer_num_path, 'r'))
@@ -35,6 +42,8 @@ class MusicFormatter:
                 continue
             self.singer2id[s] = len(self.singer2id)
 
+        print('singer2id: ', len(self.singer2id))
+
 
         '''genre2id'''
         genre_num = json.load(open(genre_num_path, 'r'))
@@ -43,6 +52,8 @@ class MusicFormatter:
             if genre_num[g] < genre_num_th:
                 continue
             self.genre2id[g] = len(self.genre2id)
+        print('genre2id: ', len(self.genre2id))
+
 
 
     def lookup(self, text, max_len):
@@ -71,16 +82,42 @@ class MusicFormatter:
             return None
 
 
+    def format_history(self, history_songids, config, mode):
+        musics = [self.format(ids, config, mode) for ids in history_songids]
+        
+        ans = {}
+        keys = ['lyric', 'features', 'singer', 'genre', 'id']
+        
+        for key in keys:
+            ans[key] = torch.cat([d[key].unsqueeze(0) for d in musics], dim = 0)
+            # print(ans[key].shape)
+        
+        return ans
+
+
     def format(self, songids, config, mode):
-        music = {'lyric': [], 'features': [], 'singer': [], 'genre': []}
+        music = {'lyric': [], 'features': [], 'singer': [], 'genre': [], 'id': []}
 
         
         for data in songids:
             data = int(data)
+            music['id'].append(self.song2id[data])
+
             data_info = self.song_info[data]
             music['features'].append(data_info['features'])
             music['lyric'].append(self.lookup(data_info['lyric'], self.lyric_len))
             
+            if data_info['singer'] in self.singer2id:
+                music['singer'].append(self.singer2id[data_info['singer']])
+            else:
+                music['singer'].append(len(self.singer2id))
+
+            if data_info['genre'] in self.genre2id:
+                music['genre'].append(self.genre2id[data_info['genre']])
+            else:
+                music['genre'].append(len(self.genre2id))
+
+            '''
             singer = np.zeros(len(self.singer2id) + 1)
             if data_info['singer'] in self.singer2id:
                 singer[self.singer2id[data_info['singer']]] = 1
@@ -94,13 +131,18 @@ class MusicFormatter:
             else:
                 genre[len(self.genre2id)] = 1
             music['genre'].append(genre)
+            '''
         
         
         music['features'] = torch.tensor(music['features'], dtype = torch.float32)
         music['lyric'] = torch.tensor(music['lyric'], dtype = torch.long)
-        music['singer'] = torch.tensor(music['singer'], dtype = torch.float32)
-        music['genre'] = torch.tensor(music['genre'], dtype = torch.float32)
+        #music['singer'] = torch.tensor(music['singer'], dtype = torch.float32)
+        #music['genre'] = torch.tensor(music['genre'], dtype = torch.float32)
         
+        music['singer'] = torch.tensor(music['singer'], dtype = torch.long)
+        music['genre'] = torch.tensor(music['genre'], dtype = torch.long)
+        
+        music['id'] = torch.tensor(music['id'], dtype = torch.long)
 
         return music
   

@@ -8,13 +8,15 @@ from utils.util import get_file_list
 
 from word2vec.word2vec import init_transformer
 from reader.formatter.MusicPairFormatter import MusicPairFormatter
+from reader.formatter.DeepInterestFormatter import DeepInterestFormatter
 
 
 def init_formatter(config):
     global formatter
     useable_list = {
         # "AYYC": AYPredictionFormatter
-        "LRMM": MusicPairFormatter
+        "LRMM": MusicPairFormatter,
+        "DeepInterest": DeepInterestFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
         formatter = useable_list[config.get("data", "formatter")](config)

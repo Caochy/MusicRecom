@@ -129,6 +129,19 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
     print('----------------|--------------------------|--------------------------|----------------|')
     start = timer()
 
+
+    def DataCuda(data):
+        if type(data) == dict:
+            for key in data.keys():
+                data[key] = DataCuda(data[key])
+        if isinstance(data, torch.Tensor):
+            if torch.cuda.is_available() and use_gpu:
+                data = Variable(data.cuda())
+            else:
+                data = Variable(data)
+        return data
+               
+
     for epoch_num in range(trained_epoch, epoch):
         cnt = 0
 
@@ -147,13 +160,16 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
             data = train_dataset.fetch_data(config)
             if data is None:
                 break
-
+            
+            '''
             for key in data.keys():
                 if isinstance(data[key], torch.Tensor):
                     if torch.cuda.is_available() and use_gpu:
                         data[key] = Variable(data[key].cuda())
                     else:
                         data[key] = Variable(data[key])
+            '''
+            data = DataCuda(data)
 
             optimizer.zero_grad()
 
