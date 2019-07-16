@@ -26,7 +26,6 @@ else:
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
 config = ConfigParser(configFilePath)
-
 print_info("Start to build Net")
 
 model_name = config.get("model", "name")

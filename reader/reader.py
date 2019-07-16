@@ -15,6 +15,7 @@ def init_formatter(config):
     global formatter
     useable_list = {
         # "AYYC": AYPredictionFormatter
+        "DeepFM":MusicPairFormatter,
         "LRMM": MusicPairFormatter,
         "DeepInterest": DeepInterestFormatter
     }
