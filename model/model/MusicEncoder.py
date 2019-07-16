@@ -15,36 +15,32 @@ class MusicEncoder(nn.Module):
         
         self.song_feature_len = config.getint('model', 'song_feature_len')
         self.hidden = config.getint('model', 'hidden_size')
+        self.emb_size = config.getint('model', 'emb_size')
         
         #self.bert = BertModel.from_pretrained(config.get("model", "bert_path"))
 
-        self.feature = nn.Linear(self.song_feature_len, self.hidden)
-        self.lyric = nn.Linear(768, self.hidden)
+        self.feature = nn.Linear(self.song_feature_len, self.emb_size)
+        self.lyric = nn.Linear(768, self.emb_size)
 
         #self.singers = nn.Linear(417, self.hidden) # th = 20
-        self.singers = nn.Embedding(417, self.hidden)
+        self.singers = nn.Embedding(417, self.emb_size)
         #self.genre = nn.Linear(18, self.hidden) # th 100
-        self.genre = nn.Embedding(18, self.hidden)
+        self.genre = nn.Embedding(18, self.emb_size)
         
-        self.MusicEmb = nn.Embedding(42800, self.hidden)
+        self.MusicEmb = nn.Embedding(42800, self.emb_size)
         
+        self.out = nn.Linear(4 * self.emb_size, self.hidden * 2)
 
-        self.out = nn.Linear(4 * self.hidden, self.hidden * 2)
+        self.init_embedding(self.singers)
+        self.init_embedding(self.genre)
+        self.init_embedding(self.MusicEmb)
 
-    
-    def forward_history(self, history):
-        batch = history['id'].shape[0]
-        k = history['id'].shape[1]
 
-        for key in history:
-            # print(key, batch, k, history[key].shape)
-            
-            history[key] = history[key].view(batch * k, -1)
+    def init_embedding(self, emb):
+        matrix = torch.Tensor(emb.weight.shape[0], emb.weight.shape[1])
 
-        out = self.forward(history)
-        out = out.view(batch, k, self.hidden * 2)
-        
-        return out
+        nn.init.xavier_uniform_(matrix, gain = 1)
+        emb.weight.data.copy_(matrix)
 
 
     def forward(self, music):

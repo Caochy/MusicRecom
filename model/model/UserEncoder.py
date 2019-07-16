@@ -16,17 +16,28 @@ class UserEncoder(nn.Module):
         self.moments_lda_len = config.getint('model', 'moments_lda_len')
         self.hidden = config.getint('model', 'hidden_size')
         
+        self.emb_size = config.getint('model', 'emb_size')
         # self.bert = BertModel.from_pretrained(config.get("model", "bert_path"))
 
-        self.feature = nn.Linear(self.article_feature_len, self.hidden)
-        self.moments_lda = nn.Linear(self.moments_lda_len, self.hidden)
+        self.feature = nn.Linear(self.article_feature_len, self.emb_size)
+        self.moments_lda = nn.Linear(self.moments_lda_len, self.emb_size)
         
-        self.UserEmb = nn.Embedding(190662, self.hidden)
-        self.age = nn.Embedding(6, self.hidden)
-        self.gender = nn.Embedding(2, self.hidden)
+        self.UserEmb = nn.Embedding(190662, self.emb_size)
+        self.age = nn.Embedding(6, self.emb_size)
+        self.gender = nn.Embedding(2, self.emb_size)
 
-        self.out = nn.Linear(5 * self.hidden, 2 * self.hidden)
+        self.out = nn.Linear(5 * self.emb_size, 2 * self.hidden)
 
+        self.init_emb(self.UserEmb)
+        self.init_emb(self.age)
+        self.init_emb(self.gender)
+
+    
+    def init_emb(self, emb):
+        matrix = torch.Tensor(emb.weight.shape[0], emb.weight.shape[1])
+        nn.init.xavier_uniform_(matrix, gain = 1)
+
+        emb.weight.data.copy_(matrix)
 
     def init_multi_gpu(self, device):
         # self.bert = nn.DataParallel(self.bert, device_ids=device)

@@ -13,6 +13,8 @@ class DeepInterestFormatter:
         self.user = UserFormatter(config)
         
         self.k = config.getint('train', 'num_interaction')
+
+        self.score_th = 10
         
     def check(self, data, config):
         
@@ -26,9 +28,9 @@ class DeepInterestFormatter:
         for m in data['music']:
             if self.music.check(m, config) is None:
                 continue
-            if data['music'][m] > 4.5:
+            if data['music'][m] > self.score_th:
                 like_music.append(m)
-            else:
+            if data['music'][m] < 3:
                 dislike_music.append(m)
 
         if len(like_music) < self.k + 5:
@@ -42,10 +44,14 @@ class DeepInterestFormatter:
 
         history = like_music[:self.k]
         
-        if random.randint(0, 1000) % 2 == 0:
+        if random.randint(0, 1000) % 3 == 0:
             candidate = like_music[-1]
+            label = 1
         else:
-            candidate = dislike_music[0]
+            candidate = dislike_music[-1]
+            label = 0
+
+
         '''
         candidate = dislike_music
         if len(like_music) > self.k:
@@ -54,11 +60,7 @@ class DeepInterestFormatter:
         random.shuffle(candidate)
         candidate = candidate[0]
         ''' 
-        if data['music'][candidate] > 4.5:
-            label = 1
-        else:
-            label = 0
-
+        
         return {'user': userid, 'history': history, 'candidate': candidate, 'label': label}
 
 
@@ -69,6 +71,14 @@ class DeepInterestFormatter:
         candidate = self.music.format([u['candidate'] for u in alldata], config, mode)
 
         history = self.music.format_history([u['history'] for u in alldata], config, mode)
+        
+        
+        '''
+        print('history data infomation')
+        for key in history:
+            print(key, history[key].shape)
+        '''
+        
 
         labels = torch.tensor([d['label'] for d in alldata], dtype = torch.long)
 

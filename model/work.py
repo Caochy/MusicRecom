@@ -30,7 +30,7 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
         if config.getboolean('valid', 'valid_out'):
             fout = open(config.get('valid', 'valid_out_path'), 'w')
             result_out = True
-            print('result will be stored in %s' % config.get('valid', 'valid_out_path'))
+            #print('result will be stored in %s' % config.get('valid', 'valid_out_path'))
     except Exception as err:
         print(err)
         result_out = False
@@ -41,13 +41,15 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
         if data is None:
            break
         cnt += 1
-
+        '''
         for key in data.keys():
             if isinstance(data[key], torch.Tensor):
                 if torch.cuda.is_available() and use_gpu:
                     data[key] = Variable(data[key].cuda())
                 else:
                     data[key] = Variable(data[key])
+        '''
+        data = DataCuda(data, use_gpu)
 
         results = net(data, criterion, config, use_gpu, acc_result)
         # print('forward')
@@ -56,8 +58,10 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
         acc_result = results["accuracy_result"]
         
         if result_out:
-            for index in range(len(data['uid'])):
-                print("%s\t\t%d" % (data['uid'][index], results['result'][index]), file = fout)
+            print(outputs, file = fout)
+            
+            #for index in range(len(data['uid'])):
+            #    print("%s\t\t%d" % (data['uid'][index], results['result'][index]), file = fout)
 
         running_loss += loss.item()
         running_acc += accu.item()
@@ -79,6 +83,17 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
 
     # print_info("valid end")
     # print_info("------------------------")
+
+def DataCuda(data, use_gpu):
+    if type(data) == dict:
+        for key in data.keys():
+            data[key] = DataCuda(data[key], use_gpu)
+    if isinstance(data, torch.Tensor):
+        if torch.cuda.is_available() and use_gpu:
+            data = Variable(data.cuda())
+        else:
+            data = Variable(data)
+    return data
 
 
 def train_net(net, train_dataset, valid_dataset, use_gpu, config):
@@ -129,7 +144,7 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
     print('----------------|--------------------------|--------------------------|----------------|')
     start = timer()
 
-
+    '''
     def DataCuda(data):
         if type(data) == dict:
             for key in data.keys():
@@ -140,7 +155,7 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
             else:
                 data = Variable(data)
         return data
-               
+    '''           
 
     for epoch_num in range(trained_epoch, epoch):
         cnt = 0
@@ -169,7 +184,7 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
                     else:
                         data[key] = Variable(data[key])
             '''
-            data = DataCuda(data)
+            data = DataCuda(data, use_gpu)
 
             optimizer.zero_grad()
 

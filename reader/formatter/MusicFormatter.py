@@ -105,7 +105,7 @@ class MusicFormatter:
 
             data_info = self.song_info[data]
             music['features'].append(data_info['features'])
-            music['lyric'].append(self.lookup(data_info['lyric'], self.lyric_len))
+            #music['lyric'].append(self.lookup(data_info['lyric'], self.lyric_len))
             
             if data_info['singer'] in self.singer2id:
                 music['singer'].append(self.singer2id[data_info['singer']])
