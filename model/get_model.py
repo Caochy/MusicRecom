@@ -2,15 +2,16 @@
 #from model.model.TextCNN import TextCNN
 #from model.model.basic_model import CV_pay
 
-from model.model.LRMM import LatentRelMM
-from model.model.DeepInterest import DeepInterest
-
+# from model.model.LRMM import LatentRelMM
+# from model.model.DeepInterest import DeepInterest
+from model.model.DeepFM import DeepFM
 
 model_list = {
     #"LSTM": LSTM,
     #"TextCNN": TextCNN,
-    "LRMM": LatentRelMM,
-    "DeepInterest": DeepInterest
+#     "LRMM": LatentRelMM,
+#     "DeepInterest": DeepInterest,
+    "DeepFM":DeepFM
 }
 
 
