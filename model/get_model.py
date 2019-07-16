@@ -4,13 +4,14 @@
 
 from model.model.LRMM import LatentRelMM
 from model.model.DeepInterest import DeepInterest
-
+from model.model.DeepFM import DeepFM
 
 model_list = {
     #"LSTM": LSTM,
     #"TextCNN": TextCNN,
     "LRMM": LatentRelMM,
-    "DeepInterest": DeepInterest
+    "DeepInterest": DeepInterest,
+    "DeepFM":DeepFM
 }
 
 

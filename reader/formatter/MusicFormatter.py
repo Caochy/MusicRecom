@@ -87,7 +87,7 @@ class MusicFormatter:
         
         ans = {}
         keys = ['lyric', 'features', 'singer', 'genre', 'id']
-        
+
         for key in keys:
             ans[key] = torch.cat([d[key].unsqueeze(0) for d in musics], dim = 0)
             # print(ans[key].shape)
