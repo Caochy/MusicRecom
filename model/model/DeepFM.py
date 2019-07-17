@@ -31,8 +31,8 @@ class DeepFM(nn.Module):
         self.final=nn.Linear(self.field_size+self.field_num+self.deep_layer2,2)
         
     def init_multi_gpu(self, device):
-        self.field_encoder = nn.DataParallel(self.field_encoder)
-        self.mlp=nn.DataParallel(self.mlp)
+#         self.field_encoder = nn.DataParallel(self.field_encoder,device)
+#         self.mlp=nn.DataParallel(self.mlp,device)
         pass
 
     def forward(self, data, criterion, config, usegpu, acc_result = None):
