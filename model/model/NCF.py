@@ -11,15 +11,24 @@ class NCF(nn.Module):
     def __init__(self, config):
         super(NCF, self).__init__()
         self.model = config.get('model','modelStage')
-        self.GMF_model = config.get('model','GMF_model')
-        if os.path.exists(self.GMF_model):
-            self.GMF_model=torch.load(self.GMF_model)
-        else:print("no GMF_model:",self.GMF_model)
-
-        self.MLP_model = config.get('model','MLP_model')
-        if os.path.exists(self.MLP_model):
-            self.MLP_model=torch.load(self.MLP_model)
-        else:print("no MLP_model:",self.MLP_model)
+        print("ModelStage:",self.model)
+        if self.model == 'NeuMF-pre': 
+            self.GMF_model_path = config.get('model','GMF_model')
+            if os.path.exists(self.GMF_model_path):
+                config.config.set('model','modelStage','GMF')
+                self.GMF_model=NCF(config).cuda()
+                self.GMF_model.load_state_dict(torch.load(self.GMF_model_path))
+                print("load GMF done")
+            else:print("no GMF_model:",self.GMF_model)
+            
+            self.MLP_model_path = config.get('model','MLP_model')
+            if os.path.exists(self.MLP_model_path):
+                config.config.set('model','modelStage','MLP')
+                self.MLP_model=NCF(config).cuda()
+                self.MLP_model.load_state_dict(torch.load(self.MLP_model_path))
+                print("load MLP done")
+            else:print("no MLP_model:",self.MLP_model)
+        
 
         user_num=190662
         item_num=42800
