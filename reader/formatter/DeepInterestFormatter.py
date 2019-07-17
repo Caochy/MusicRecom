@@ -14,7 +14,7 @@ class DeepInterestFormatter:
         
         self.k = config.getint('train', 'num_interaction')
 
-        self.score_th = 10
+        self.score_th = 8
         
     def check(self, data, config):
         
@@ -30,21 +30,21 @@ class DeepInterestFormatter:
                 continue
             if data['music'][m] > self.score_th:
                 like_music.append(m)
-            if data['music'][m] < 3:
+            if data['music'][m] < 6:
                 dislike_music.append(m)
 
-        if len(like_music) < self.k + 5:
+        if len(like_music) < self.k + 1:
             return None
 
-        if len(dislike_music) < 5:
+        if len(dislike_music) < 1:
             return None
             
-        random.shuffle(like_music)
-        random.shuffle(dislike_music)
+        #random.shuffle(like_music)
+        #random.shuffle(dislike_music)
 
         history = like_music[:self.k]
         
-        if random.randint(0, 1000) % 3 == 0:
+        if random.randint(0, 1000) % 2 == 0:
             candidate = like_music[-1]
             label = 1
         else:

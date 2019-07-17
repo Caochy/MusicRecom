@@ -28,6 +28,7 @@ class UserFormatter:
 
             data = int(data)
             if data not in self.user_info:
+
                 return None
             return True
         except Exception as err:

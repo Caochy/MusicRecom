@@ -54,14 +54,19 @@ class MusicEncoder(nn.Module):
 
         
         #print('singer', singers.shape)
+          
+        memb = self.MusicEmb(memb).squeeze()
+
+        # return self.out(memb)
 
         feature = self.feature(feature).squeeze()
         singers = self.singers(singers).squeeze()
         genre = self.genre(genre).squeeze()
 
-        memb = self.MusicEmb(memb).squeeze()
 
         embs = torch.cat([memb, feature, singers, genre], dim = 1)
+        
+        
         return self.out(embs)
         
         '''

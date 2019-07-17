@@ -57,6 +57,8 @@ class UserEncoder(nn.Module):
         moments = self.moments_lda(moments)
 
         uemb = self.UserEmb(uemb)
+        #return self.out(uemb)
+
         age = self.age(age)
         gender = self.gender(gender)
 
