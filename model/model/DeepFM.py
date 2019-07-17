@@ -7,7 +7,6 @@ import numpy as np
 import json
 
 from utils.util import calc_accuracy, gen_result, generate_embedding
-from model.model.UserEncoder import UserEncoder
 from model.model.FieldEncoder import FieldEncoder
 class DeepFM(nn.Module):
     def __init__(self, config):

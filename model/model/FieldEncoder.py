@@ -27,6 +27,19 @@ class FieldEncoder(nn.Module):
         self.singers = nn.Embedding(417, self.hidden)
         self.genre = nn.Embedding(18, self.hidden)
         self.MusicEmb = nn.Embedding(42800, self.hidden)
+        
+        self.init_emb(self.UserEmb)
+        self.init_emb(self.age)
+        self.init_emb(self.gender)
+        self.init_emb(self.singers)
+        self.init_emb(self.genre)
+        self.init_emb(self.MusicEmb)
+        
+    def init_emb(self, emb):
+        matrix = torch.Tensor(emb.weight.shape[0], emb.weight.shape[1])
+        nn.init.xavier_uniform_(matrix, gain = 1)
+        emb.weight.data.copy_(matrix)
+        
     def init_multi_gpu(self, device):
         self.ufeature = nn.DataParallel(self.ufeature, device_ids=device)
         self.moments_lda = nn.DataParallel(self.moments_lda, device_ids=device)
@@ -51,12 +64,9 @@ class FieldEncoder(nn.Module):
         memb = music['id']
 
         feature = self.sfeature(feature)
-        feature=feature.squeeze()
-        
-        singers = self.singers(singers).squeeze()
-        genre = self.genre(genre).squeeze()
-        memb = self.MusicEmb(memb).squeeze()
-
+        singers = self.singers(singers)
+        genre = self.genre(genre)
+        memb = self.MusicEmb(memb)
         
         out = torch.cat([uemb, age, gender, article, moments,feature,singers,genre,memb], dim = 1)
         return out
