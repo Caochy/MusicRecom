@@ -11,7 +11,7 @@ from timeit import default_timer as timer
 
 from model.loss import get_loss
 from utils.util import gen_result, print_info, time_to_str
-
+from utils.accuracy import auc
 
 def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
     net.eval()
@@ -35,6 +35,9 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
         print(err)
         result_out = False
 
+    
+    alloutputs = []
+    alllabel = []
     while True:
         data = valid_dataset.fetch_data(config)
         # print('fetch data')
@@ -57,6 +60,9 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
         outputs, loss, accu = results["x"], results["loss"], results["accuracy"]
         acc_result = results["accuracy_result"]
         
+        alloutputs.append(outputs)
+        alllabel.append(data['label'])
+
         if result_out:
             print(outputs, file = fout)
             
@@ -64,6 +70,7 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
             #    print("%s\t\t%d" % (data['uid'][index], results['result'][index]), file = fout)
 
         running_loss += loss.item()
+        
         running_acc += accu.item()
 
     if writer is None:
@@ -78,7 +85,8 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
     # gen_result(acc_result, True)
 
     net.train()
-
+    auc_result, _ = auc(torch.cat(alloutputs, dim = 0), torch.cat(alllabel, dim = 0), config)
+    print('auc:', auc_result)
     return running_loss / cnt, running_acc / cnt
 
     # print_info("valid end")

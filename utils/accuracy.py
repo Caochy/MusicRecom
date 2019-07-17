@@ -94,3 +94,20 @@ def top2(outputs, label, config, result=None):
     prediction2 = prediction2.view(-1)
 
     return torch.mean(torch.eq(prediction1, label).float()) + torch.mean(torch.eq(prediction2, label).float()), result
+
+
+from sklearn import metrics
+import numpy as np
+def auc(outputs, label, config, result = None):
+    if result is None:
+        result = {'pred': outputs[:,1], 'label': label}
+    else:
+        result['pred'] = torch.cat([result['pred'], outputs[:,1]], dim = 0)
+        result['label'] = torch.cat([result['label'], label], dim = 0)
+        
+    pred = np.array(result['pred'].cpu().tolist())
+    y = result['label'].cpu().tolist()
+    fpr, tpr, thresholds = metrics.roc_curve(y, pred, pos_label=1)
+
+    return torch.tensor(metrics.auc(fpr, tpr)), result
+    

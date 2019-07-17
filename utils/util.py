@@ -58,11 +58,13 @@ def check_multi(config):
 
 
 def calc_accuracy(outputs, label, config, result=None):
-    from utils.accuracy import top1, top2
+    from utils.accuracy import top1, top2, auc
     if config.get("output", "accuracy_method") == "top1":
         return top1(outputs, label, config, result)
     elif config.get("output", "accuracy_method") == "top2":
         return top2(outputs, label, config, result)
+    elif config.get("output", "accuracy_method") == "auc":
+        return auc(outputs, label, config, result)
     else:
         raise NotImplementedError
 
