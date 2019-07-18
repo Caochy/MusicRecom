@@ -27,6 +27,7 @@ class DeepFM(nn.Module):
                     nn.ReLU(),
                     nn.Dropout()
                 )
+        print("deep_layer2:{},final:{}".format(self.deep_layer2,self.field_size+self.field_num+self.deep_layer2))
         self.final=nn.Linear(self.field_size+self.field_num+self.deep_layer2,2)
         
     def init_multi_gpu(self, device):
