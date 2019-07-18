@@ -38,6 +38,7 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
     
     alloutputs = []
     alllabel = []
+    
     while True:
         data = valid_dataset.fetch_data(config)
         # print('fetch data')
@@ -62,7 +63,7 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
         
         alloutputs.append(outputs)
         alllabel.append(data['label'])
-
+        
         if result_out:
             print(outputs.tolist(), file = fout)
             

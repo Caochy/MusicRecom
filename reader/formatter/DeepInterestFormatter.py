@@ -15,7 +15,11 @@ class DeepInterestFormatter:
         self.k = config.getint('train', 'num_interaction')
 
         self.score_th = 8
-        
+        self.allmusic = list(self.music.song_info.keys())
+        random.shuffle(self.allmusic)
+        self.index = 0
+        self.fout = None        
+
     def check(self, data, config):
         
         data = json.loads(data)
@@ -48,7 +52,11 @@ class DeepInterestFormatter:
             candidate = like_music[-1]
             label = 1
         else:
-            candidate = dislike_music[-1]
+            # candidate = dislike_music[-1]
+            while self.music.check(self.allmusic[self.index], config) is None:
+                self.index += 1
+            candidate = self.allmusic[self.index]
+            self.index = (self.index + 1) % len(self.allmusic)
             label = 0
 
 
@@ -66,6 +74,15 @@ class DeepInterestFormatter:
 
 
     def format(self, alldata, config, transformer, mode):
+        
+        if mode == 'train':
+            self.fout = None
+        else:
+            if self.fout is None:
+                self.fout = open('test.txt', 'w')
+            for d in alldata:
+                print('%s\t%d' % (d['candidate'], d['label']), file = self.fout)
+        
         
         users = self.user.format([u['user'] for u in alldata], config, mode)
         candidate = self.music.format([u['candidate'] for u in alldata], config, mode)
