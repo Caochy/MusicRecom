@@ -53,26 +53,27 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
                 else:
                     data[key] = Variable(data[key])
         '''
-        data = DataCuda(data, use_gpu)
+        with torch.no_grad():
+            data = DataCuda(data, use_gpu)
 
-        results = net(data, criterion, config, use_gpu, acc_result)
-        # print('forward')
+            results = net(data, criterion, config, use_gpu, acc_result)
+            # print('forward')
 
-        outputs, loss, accu = results["x"], results["loss"], results["accuracy"]
-        acc_result = results["accuracy_result"]
-        
-        alloutputs.append(outputs)
-        alllabel.append(data['label'])
-        
-        if result_out:
-            print(outputs.tolist(), file = fout)
-            
-            #for index in range(len(data['uid'])):
-            #    print("%s\t\t%d" % (data['uid'][index], results['result'][index]), file = fout)
+            outputs, loss, accu = results["x"], results["loss"], results["accuracy"]
+            acc_result = results["accuracy_result"]
 
-        running_loss += loss.item()
-        
-        running_acc += accu.item()
+            alloutputs.append(outputs)
+            alllabel.append(data['label'])
+
+            if result_out:
+                print(outputs.tolist(), file = fout)
+
+                #for index in range(len(data['uid'])):
+                #    print("%s\t\t%d" % (data['uid'][index], results['result'][index]), file = fout)
+
+            running_loss += loss.item()
+
+            running_acc += accu.item()
 
     if writer is None:
         pass

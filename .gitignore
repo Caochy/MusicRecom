@@ -2,4 +2,5 @@
 **.pyc
 /**/*.pkl
 /**/.ipynb_checkpoints/
+/result.txt
 /bert-base-chinese/
