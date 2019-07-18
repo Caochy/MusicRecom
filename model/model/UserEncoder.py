@@ -25,8 +25,10 @@ class UserEncoder(nn.Module):
         self.UserEmb = nn.Embedding(190662, self.emb_size)
         self.age = nn.Embedding(6, self.emb_size)
         self.gender = nn.Embedding(2, self.emb_size)
+        
 
-        self.out = nn.Linear(5 * self.emb_size, 2 * self.hidden)
+        feature_size = self.emb_size# * 5
+        self.out = nn.Linear(feature_size, 2 * self.hidden)
 
         self.init_emb(self.UserEmb)
         self.init_emb(self.age)
@@ -57,7 +59,7 @@ class UserEncoder(nn.Module):
         moments = self.moments_lda(moments)
 
         uemb = self.UserEmb(uemb)
-        #return self.out(uemb)
+        return self.out(uemb)
 
         age = self.age(age)
         gender = self.gender(gender)

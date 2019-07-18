@@ -29,7 +29,8 @@ class MusicEncoder(nn.Module):
         
         self.MusicEmb = nn.Embedding(42800, self.emb_size)
         
-        self.out = nn.Linear(4 * self.emb_size, self.hidden * 2)
+        feature_size = self.emb_size# * 4
+        self.out = nn.Linear(feature_size, self.hidden * 2)
 
         self.init_embedding(self.singers)
         self.init_embedding(self.genre)
@@ -57,7 +58,7 @@ class MusicEncoder(nn.Module):
           
         memb = self.MusicEmb(memb).squeeze()
 
-        # return self.out(memb)
+        return self.out(memb)
 
         feature = self.feature(feature).squeeze()
         singers = self.singers(singers).squeeze()
