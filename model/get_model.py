@@ -5,13 +5,15 @@
 from model.model.LRMM import LatentRelMM
 from model.model.DeepInterest import DeepInterest
 from model.model.DeepFM import DeepFM
+from model.model.NCF import NCF
 
 model_list = {
     #"LSTM": LSTM,
     #"TextCNN": TextCNN,
     "LRMM": LatentRelMM,
     "DeepInterest": DeepInterest,
-    "DeepFM":DeepFM
+    "DeepFM":DeepFM,
+    "NCF":NCF
 }
 
 
