@@ -47,27 +47,36 @@ class FieldEncoder(nn.Module):
 
     def forward(self, user,music):
         # user
-        article = user['articles']
-        moments = user['moments']
         uemb = user['id']
+        uemb = self.UserEmb(uemb)
+        memb = music['id']
+        memb = self.MusicEmb(memb)
+        return torch.cat([uemb,memb], dim = 1)
+        
+        article = user['articles']
         age = user['age']
         gender = user['gender']
         article = self.ufeature(article)
-        moments = self.moments_lda(moments)
-        uemb = self.UserEmb(uemb)
+        
         age = self.age(age)
         gender = self.gender(gender)
+        
+        
         # music
-        feature = music['features']
         singers = music['singer']
         genre = music['genre']
-        memb = music['id']
-
-        feature = self.sfeature(feature)
+        
         singers = self.singers(singers)
         genre = self.genre(genre)
-        memb = self.MusicEmb(memb)
         
+        
+        return torch.cat([uemb, age, gender, article,singers,genre,memb], dim = 1)
+        
+        
+        moments = user['moments']
+        feature = music['features']
+        feature = self.sfeature(feature)
+        moments = self.moments_lda(moments)
         out = torch.cat([uemb, age, gender, article, moments,feature,singers,genre,memb], dim = 1)
         return out
 

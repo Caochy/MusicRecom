@@ -46,7 +46,8 @@ class DeepFMFormatter:
         for d in alldata:
             labels.extend(d[2])
             musicids.extend(d[1])
-            userids.extend(d[0])     
+            userids.extend(d[0])   
+
         music = self.music.format(musicids, config, mode)
         users = self.user.format(userids, config, mode)        
         labels = torch.tensor(labels, dtype = torch.long)
