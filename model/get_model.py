@@ -6,6 +6,7 @@ from model.model.LRMM import LatentRelMM
 from model.model.DeepInterest import DeepInterest
 from model.model.DeepFM import DeepFM
 from model.model.NCF import NCF
+from model.model.Ours.RelationNetwork import RelationNetwork
 
 model_list = {
     #"LSTM": LSTM,
@@ -13,7 +14,8 @@ model_list = {
     "LRMM": LatentRelMM,
     "DeepInterest": DeepInterest,
     "DeepFM":DeepFM,
-    "NCF":NCF
+    "NCF":NCF,
+    "RelationNetwork": RelationNetwork
 }
 
 

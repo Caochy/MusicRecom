@@ -74,15 +74,17 @@ class DeepInterestFormatter:
 
 
     def format(self, alldata, config, transformer, mode):
-        
+        '''        
         if mode == 'train':
-            self.fout = None
+            if not self.fout is None:
+                self.fout.close()
+                self.fout = None
         else:
             if self.fout is None:
                 self.fout = open('test.txt', 'w')
             for d in alldata:
                 print('%s\t%d' % (d['candidate'], d['label']), file = self.fout)
-        
+        '''
         
         users = self.user.format([u['user'] for u in alldata], config, mode)
         candidate = self.music.format([u['candidate'] for u in alldata], config, mode)

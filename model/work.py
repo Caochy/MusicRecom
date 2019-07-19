@@ -87,8 +87,8 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
 
     net.train()
     auc_result, _ = auc(torch.cat(alloutputs, dim = 0), torch.cat(alllabel, dim = 0), config)
-    print('auc:', auc_result)
-    return running_loss / cnt, running_acc / cnt
+    # print('auc:', auc_result)
+    return running_loss / cnt, running_acc / cnt, auc_result
 
     # print_info("valid end")
     # print_info("------------------------")
@@ -152,19 +152,7 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
     print('  lr    epoch   |   loss           top-1   |   loss           top-1   |      time      |')
     print('----------------|--------------------------|--------------------------|----------------|')
     start = timer()
-
-    '''
-    def DataCuda(data):
-        if type(data) == dict:
-            for key in data.keys():
-                data[key] = DataCuda(data[key])
-        if isinstance(data, torch.Tensor):
-            if torch.cuda.is_available() and use_gpu:
-                data = Variable(data.cuda())
-            else:
-                data = Variable(data)
-        return data
-    '''           
+      
 
     for epoch_num in range(trained_epoch, epoch):
         cnt = 0
@@ -192,6 +180,7 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
                         data[key] = Variable(data[key].cuda())
                     else:
                         data[key] = Variable(data[key])
+            
             '''
             data = DataCuda(data, use_gpu)
 
@@ -227,11 +216,11 @@ def train_net(net, train_dataset, valid_dataset, use_gpu, config):
             os.makedirs(model_path)
         torch.save(net.state_dict(), os.path.join(model_path, "model-%d.pkl" % (epoch_num + 1)))
 
-        valid_loss, valid_accu = valid_net(net, valid_dataset, use_gpu, config, epoch_num + 1, writer)
+        valid_loss, valid_accu, auc_result = valid_net(net, valid_dataset, use_gpu, config, epoch_num + 1, writer)
         print('\r', end='', flush=True)
-        print('%.4f   % 3d    |  %.4f          %.2f   |  %.4f         % 2.2f   |  %s  |' % (
+        print('%.4f   % 3d    |  %.4f          %.2f   |  %.4f         % 2.2f   |  %s  | auc_reuslt: %.4f' % (
             lr, epoch_num + 1, train_loss, train_acc * 100, valid_loss, valid_accu * 100,
-            time_to_str((timer() - start))))
+            time_to_str((timer() - start)), auc_result))
 
 
 print_info("training is finished!")

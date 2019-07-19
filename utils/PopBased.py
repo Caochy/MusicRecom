@@ -41,18 +41,22 @@ def PopBasedRecom(data, label):
 
     tmpdata = []
     for i in range(len(data)):
-        tmpdata.append((data[i], label[i], poprank[int(data[i])]))
+        if int(data[i]) in poprank:
+            tmpdata.append((data[i], label[i], poprank[int(data[i])]))
+        else:
+            print(data[i])
 
     sorted(tmpdata, key = lambda x:x[2])
 
     ranksum = 0
     pnum = 0
-    for v in tmpdata:
+    for i in range(len(tmpdata)):
+        v = tmpdata[i]
         if v[1] == 1:
-            ranksum += len(tmpdata) - v[2] - 1
+            ranksum += len(tmpdata) - i - 1
             pnum += 1
 
-    auc = (ranksum - pnum * pnum) / pnum * (len(label) - pnum)
+    auc = (ranksum - pnum * (pnum + 1)/2) / (pnum * (len(label) - pnum))
 
     print('auc', auc)
 
@@ -65,8 +69,13 @@ if __name__ == '__main__':
     label = []
     for line in fin:
         line = line.strip().split('\t')
-        data.append(int(line[0]))
-        label.append(int(line[1]))
+        try:
+            tid = int(line[0])
+            tl = int(line[1])
+            data.append(tid)
+            label.append(tl)
+        except:
+            print(line)
     
     PopBasedRecom(data, label)
 
