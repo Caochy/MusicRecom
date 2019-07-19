@@ -12,7 +12,7 @@ class DeepFM(nn.Module):
     def __init__(self, config):
         super(DeepFM, self).__init__()
         self.field_size = config.getint('model', 'hidden_size')
-        self.field_num= 9
+        self.field_num= 2
         self.field_encoder = FieldEncoder(config)
         self.deep_layer1=config.getint('model','deep_layer1')
         self.deep_layer2=config.getint('model','deep_layer2')
@@ -27,6 +27,7 @@ class DeepFM(nn.Module):
                     nn.ReLU(),
                     nn.Dropout()
                 )
+        print("deep_layer2:{},final:{}".format(self.deep_layer2,self.field_size+self.field_num+self.deep_layer2))
         self.final=nn.Linear(self.field_size+self.field_num+self.deep_layer2,2)
         
     def init_multi_gpu(self, device):

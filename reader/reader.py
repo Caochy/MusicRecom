@@ -10,12 +10,12 @@ from word2vec.word2vec import init_transformer
 from reader.formatter.MusicPairFormatter import MusicPairFormatter
 from reader.formatter.DeepInterestFormatter import DeepInterestFormatter
 from reader.formatter.NCFFormatter import NCFFormatter
-
+from reader.formatter.DeepFMFormatter import DeepFMFormatter
 def init_formatter(config):
     global formatter
     useable_list = {
         # "AYYC": AYPredictionFormatter
-        "DeepFM":MusicPairFormatter,
+        "DeepFM":DeepFMFormatter,
         "LRMM": MusicPairFormatter,
         "DeepInterest": DeepInterestFormatter,
         "NCF": NCFFormatter
