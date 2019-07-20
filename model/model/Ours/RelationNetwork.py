@@ -27,6 +27,10 @@ class User(nn.Module):
         self.gender = nn.Embedding(2, self.emb_size)
         
 
+        self.moments_batchnorm = nn.BatchNorm1d(self.moments_lda_len)
+        self.article_batchnorm = nn.BatchNorm1d(self.article_feature_len)
+
+
     def init_emb(self, emb):
         matrix = torch.Tensor(emb.weight.shape[0], emb.weight.shape[1])
         nn.init.xavier_uniform_(matrix, gain = 1)
@@ -40,19 +44,22 @@ class User(nn.Module):
         uemb = user['id']
         age = user['age']
         gender = user['gender']
-
-        '''
+        
+        
+        article = self.article_batchnorm(article)
+        moments = self.moments_batchnorm(moments)
+        
         article = self.feature(article).unsqueeze(1)
         moments = self.moments_lda(moments).unsqueeze(1)
-        '''
+        
 
         uemb = self.UserEmb(uemb).unsqueeze(1)
         age = self.age(age).unsqueeze(1)
         gender = self.gender(gender).unsqueeze(1)
         
-        return torch.cat([uemb, age, gender], dim = 1)
+        # return torch.cat([uemb, age, gender], dim = 1)
         # return torch.cat([age, gender, article, moments], dim = 1)
-        # return torch.cat([uemb, age, gender, article, moments], dim = 1)
+        return torch.cat([uemb, age, gender, article, moments], dim = 1)
 
 
 class Item(nn.Module):
@@ -74,6 +81,8 @@ class Item(nn.Module):
         self.init_embedding(self.singers)
         self.init_embedding(self.genre)
         self.init_embedding(self.MusicEmb)
+        
+        self.batchnorm = nn.BatchNorm1d(self.song_feature_len)
 
 
     def init_embedding(self, emb):
@@ -89,15 +98,17 @@ class Item(nn.Module):
         singers = music['singer']
         genre = music['genre']
         memb = music['id']
+        
+        feature = self.batchnorm(feature)
 
         memb = self.MusicEmb(memb).squeeze().unsqueeze(1)
-        #feature = self.feature(feature).squeeze().unsqueeze(1)
+        feature = self.feature(feature).squeeze().unsqueeze(1)
         singers = self.singers(singers).squeeze().unsqueeze(1)
         genre = self.genre(genre).squeeze().unsqueeze(1)
         
-        return torch.cat([memb, singers, genre], dim = 1)
+        # return torch.cat([memb, singers, genre], dim = 1)
         # return torch.cat([feature, singers, genre], dim = 1)
-        # return torch.cat([memb, feature, singers, genre], dim = 1)
+        return torch.cat([memb, feature, singers, genre], dim = 1)
 
 
 
@@ -200,7 +211,7 @@ class RelationNetwork(nn.Module):
         
         y = self.out(torch.cat([interest, candidate], dim = 1))
         
-        loss = criterion(y, labels) #+ self.relu(torch.mean(hweight) - 0.7)
+        loss = criterion(y, labels) + self.relu(torch.mean(hweight) - 0.7) - torch.mean(torch.log(torch.max(hweight.squeeze()[0], dim = 1)))
         accu, acc_result = calc_accuracy(y, labels, config, acc_result)
 
         return {"loss": loss, "accuracy": accu, "result": torch.max(y, dim=1)[1].cpu().numpy(), "x": y,

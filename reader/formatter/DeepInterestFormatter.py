@@ -28,19 +28,20 @@ class DeepInterestFormatter:
             return None
 
         like_music = []
-        dislike_music = []
+
+        other_music = []
         for m in data['music']:
             if self.music.check(m, config) is None:
                 continue
             if data['music'][m] >= 10 and data['music'][m] < 15:
                 like_music.append(m)
-            if data['music'][m] < 1.2 and data['music'][m] >= 0.1:
-                dislike_music.append(m)
+            if data['music'][m] >= 1:
+                other_music.append(m)
 
         if len(like_music) < self.k + 1:
             return None
 
-        if len(dislike_music) < 1:
+        if len(other_music) < 1:
             return None
             
         #random.shuffle(like_music)
