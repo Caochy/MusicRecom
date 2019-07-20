@@ -33,7 +33,7 @@ class DeepInterestFormatter:
         for m in data['music']:
             if self.music.check(m, config) is None:
                 continue
-            if data['music'][m] >= 10 and data['music'][m] < 15:
+            if data['music'][m] >= 3 and data['music'][m] < 15:
                 like_music.append(m)
             if data['music'][m] >= 1:
                 other_music.append(m)

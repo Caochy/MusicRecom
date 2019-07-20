@@ -27,12 +27,15 @@ class UserEncoder(nn.Module):
         self.gender = nn.Embedding(2, self.emb_size)
         
 
-        feature_size = self.emb_size * 3
+        feature_size = self.emb_size * 5
         self.out = nn.Linear(feature_size, 2 * self.hidden)
 
         self.init_emb(self.UserEmb)
         self.init_emb(self.age)
         self.init_emb(self.gender)
+
+        self.moments_batchnorm = nn.BatchNorm1d(self.moments_lda_len)
+        self.article_batchnorm = nn.BatchNorm1d(self.article_feature_len)
 
     
     def init_emb(self, emb):
@@ -54,6 +57,8 @@ class UserEncoder(nn.Module):
         age = user['age']
         gender = user['gender']
 
+        article = self.article_batchnorm(article)
+        moments = self.moments_batchnorm(moments)
         
         article = self.feature(article)
         moments = self.moments_lda(moments)
@@ -64,8 +69,8 @@ class UserEncoder(nn.Module):
         age = self.age(age)
         gender = self.gender(gender)
 
-        # out = torch.cat([uemb, age, gender, article, moments], dim = 1)
-        out = torch.cat([uemb, age, gender], dim = 1)
+        out = torch.cat([uemb, age, gender, article, moments], dim = 1)
+        # out = torch.cat([uemb, age, gender], dim = 1)
         return self.out(out)
 
 

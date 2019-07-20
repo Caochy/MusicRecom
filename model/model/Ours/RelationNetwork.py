@@ -211,7 +211,9 @@ class RelationNetwork(nn.Module):
         
         y = self.out(torch.cat([interest, candidate], dim = 1))
         
-        loss = criterion(y, labels) + self.relu(torch.mean(hweight) - 0.7) - torch.mean(torch.log(torch.max(hweight.squeeze()[0], dim = 1)))
+        loss = criterion(y, labels) + self.relu(torch.mean(hweight) - 0.7) # - torch.mean(torch.log(torch.max(hweight.squeeze(), dim = 1)[0]))
+        # loss = criterion(y, labels) - torch.mean(torch.log(torch.max(hweight.squeeze(), dim = 1)[0]))
+
         accu, acc_result = calc_accuracy(y, labels, config, acc_result)
 
         return {"loss": loss, "accuracy": accu, "result": torch.max(y, dim=1)[1].cpu().numpy(), "x": y,
