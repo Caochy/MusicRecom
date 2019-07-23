@@ -7,7 +7,7 @@ from model.model.DeepInterest import DeepInterest
 from model.model.DeepFM import DeepFM
 from model.model.NCF import NCF
 from model.model.Ours.RelationNetwork import RelationNetwork
-
+from model.model.xDeepFM import xDeepFM
 model_list = {
     #"LSTM": LSTM,
     #"TextCNN": TextCNN,
@@ -15,7 +15,8 @@ model_list = {
     "DeepInterest": DeepInterest,
     "DeepFM":DeepFM,
     "NCF":NCF,
-    "RelationNetwork": RelationNetwork
+    "RelationNetwork": RelationNetwork,
+    "xDeepFM":xDeepFM
 }
 
 
