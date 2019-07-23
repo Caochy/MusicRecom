@@ -18,7 +18,8 @@ def init_formatter(config):
         "DeepFM":DeepFMFormatter,
         "LRMM": MusicPairFormatter,
         "DeepInterest": DeepInterestFormatter,
-        "NCF": NCFFormatter
+        "NCF": NCFFormatter,
+        "xDeepFM":DeepFMFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
         formatter = useable_list[config.get("data", "formatter")](config)
