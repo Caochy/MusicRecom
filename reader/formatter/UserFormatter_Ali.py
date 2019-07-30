@@ -41,6 +41,7 @@ class UserFormatter:
     def format(self, userids, config, mode):
         user_select=self.user2idv(userids)
 #         feat_select=self.featname2idv(["userid","shopping_level"])
-        return torch.tensor(self.user_info[user_select,:],dtype=torch.long)
+        out=[torch.tensor(self.user_info[user_select,i],dtype=torch.long) for i in range(self.num_feat)]
+        return out
         
   

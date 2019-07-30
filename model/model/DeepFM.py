@@ -7,12 +7,12 @@ import numpy as np
 import json
 
 from utils.util import calc_accuracy, gen_result, generate_embedding
-from model.model.FieldEncoder import FieldEncoder
+from model.model.FieldEncoder_Ali import FieldEncoder
 class DeepFM(nn.Module):
     def __init__(self, config):
         super(DeepFM, self).__init__()
         self.field_size = config.getint('model', 'hidden_size')
-        self.field_num= 9
+        self.field_num= config.getint('model','field_num')
         self.field_encoder = FieldEncoder(config)
         self.deep_layer1=config.getint('model','deep_layer1')
         self.deep_layer2=config.getint('model','deep_layer2')

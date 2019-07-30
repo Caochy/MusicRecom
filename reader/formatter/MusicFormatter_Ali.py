@@ -44,7 +44,7 @@ class MusicFormatter:
     def format(self, songids, config, mode):
         item_select=self.item2idv(songids)
 #         feat_select=self.featname2idv(["adgroup_id","brand"])
-        cat=torch.tensor(self.item_info[item_select,:],dtype=torch.long)
-        price=torch.tensor(self.prices[item_select],dtype=torch.float32)
-        return cat,price
+        cat=[torch.tensor(self.item_info[item_select,i],dtype=torch.long) for i in range(self.num_feat-1)]
+        price=torch.tensor(self.prices[item_select],dtype=torch.float32).unsqueeze(1)
+        return [cat,price]
   

@@ -14,11 +14,13 @@ from reader.formatter.OurFormatter import OurFormatter
 from reader.formatter.NCFFormatter import NCFFormatter
 from reader.formatter.DeepFMFormatter import DeepFMFormatter
 from reader.formatter.NCFFormatter_Ali import NCFFormatter_Ali
+from reader.formatter.DeepFMFormatter_Ali import DeepFMFormatter_Ali
 def init_formatter(config):
     global formatter
     useable_list = {
         # "AYYC": AYPredictionFormatter
         "DeepFM":DeepFMFormatter,
+        "DeepFM-Ali":DeepFMFormatter_Ali,
         "LRMM": MusicPairFormatter,
         "DeepInterest": DeepInterestFormatter,
         "NCF": NCFFormatter,

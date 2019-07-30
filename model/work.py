@@ -98,6 +98,8 @@ def DataCuda(data, use_gpu):
     if type(data) == dict:
         for key in data.keys():
             data[key] = DataCuda(data[key], use_gpu)
+    if type(data) ==list:
+        data=[DataCuda(x,use_gpu) for x in data]
     if isinstance(data, torch.Tensor):
         if torch.cuda.is_available() and use_gpu:
             data = Variable(data.cuda())
