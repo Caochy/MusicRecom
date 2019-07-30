@@ -38,12 +38,12 @@ class FieldEncoder(nn.Module):
         out_user_cat=[self.user_cat_emb[i](user[i]) for i in range(len(self.user_cat))]
         item_cat,item_con=item
         out_item_cat=[self.item_cat_emb[i](item_cat[i]) for i in range(len(self.item_cat))]
-        out_item_con=self.item_con_emb(item_con)
+        #out_item_con=self.item_con_emb(item_con)
         
         out=[]
         out.extend(out_user_cat)
         out.extend(out_item_cat)
-        out.append(out_item_con)
+        #out.append(out_item_con)
         out = torch.cat(out, dim = 1)
         return out
 

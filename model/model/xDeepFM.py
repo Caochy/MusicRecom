@@ -7,7 +7,7 @@ import numpy as np
 import json
 
 from utils.util import calc_accuracy, gen_result, generate_embedding
-from model.model.FieldEncoder import FieldEncoder
+from model.model.FieldEncoder_Ali import FieldEncoder
 
 class CompressedInteractionNetwork(torch.nn.Module):
 
@@ -48,7 +48,7 @@ class xDeepFM(nn.Module):
     def __init__(self, config):
         super(xDeepFM, self).__init__()
         self.field_size = config.getint('model', 'hidden_size')
-        self.field_num= 9
+        self.field_num= config.getint('model','field_num')
         self.field_encoder = FieldEncoder(config)
         self.cross_layer_sizes= [32,16,8]
         self.split_half=config.getboolean('model','split_half')
