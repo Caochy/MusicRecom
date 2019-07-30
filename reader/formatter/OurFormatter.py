@@ -7,7 +7,7 @@ from .UserFormatter import UserFormatter
 import random
 
 
-class DeepInterestFormatter:
+class OurFormatter:
     def __init__(self, config):
         self.music = MusicFormatter(config)
         self.user = UserFormatter(config)
@@ -27,39 +27,29 @@ class DeepInterestFormatter:
         if self.user.check(userid, config) is None:
             return None
 
-        like_music = []
-
-        other_music = []
-        for m in data['music']:
+        if self.music.check(data['music'], config) is None:
+            return None
+        
+        history = []
+        score = []
+        for m in data['history']:
             if self.music.check(m, config) is None:
                 continue
-            if data['music'][m] >= 3 and data['music'][m] < 15:
-                like_music.append((m, data['music'][m]))
-            if data['music'][m] >= 1:
-                other_music.append(m)
+            history.append(m)
+            score.append(data['history'][m])
 
-        if len(like_music) < self.k + 1:
-            return None
 
-        if len(other_music) < 1:
+        if len(history) < self.k:
             return None
             
         # random.shuffle(like_music)
         # random.shuffle(dislike_music)
-
-        history = [d[0] for d in like_music[:self.k]]
-        score = [d[1] for d in like_music[:self.k]]
-        score = [d/24 + 0.5 for d in score]
-        if random.randint(0, 1000) % 2 == 0:
-            candidate = like_music[-1][0]
-            label = 1
-        else:
-            # candidate = dislike_music[-1]
-            while self.music.check(self.allmusic[self.index], config) is None:
-                self.index += 1
-            candidate = self.allmusic[self.index]
-            self.index = (self.index + 1) % len(self.allmusic)
-            label = 0
+        history = history[:self.k]
+        score = score[:self.k]
+        
+        candidate = data['music']
+        label = data['label']
+        
 
 
         '''

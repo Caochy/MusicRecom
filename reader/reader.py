@@ -9,6 +9,8 @@ from utils.util import get_file_list
 from word2vec.word2vec import init_transformer
 from reader.formatter.MusicPairFormatter import MusicPairFormatter
 from reader.formatter.DeepInterestFormatter import DeepInterestFormatter
+from reader.formatter.OurFormatter import OurFormatter
+
 from reader.formatter.NCFFormatter import NCFFormatter
 from reader.formatter.DeepFMFormatter import DeepFMFormatter
 def init_formatter(config):
@@ -18,7 +20,8 @@ def init_formatter(config):
         "DeepFM":DeepFMFormatter,
         "LRMM": MusicPairFormatter,
         "DeepInterest": DeepInterestFormatter,
-        "NCF": NCFFormatter
+        "NCF": NCFFormatter,
+        "OurFormatter": OurFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
         formatter = useable_list[config.get("data", "formatter")](config)

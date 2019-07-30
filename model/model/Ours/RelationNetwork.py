@@ -107,8 +107,8 @@ class Item(nn.Module):
         genre = self.genre(genre).squeeze().unsqueeze(1)
         
         # return torch.cat([memb, singers, genre], dim = 1)
-        # return torch.cat([feature, singers, genre], dim = 1)
-        return torch.cat([memb, feature, singers, genre], dim = 1)
+        return torch.cat([feature, singers, genre], dim = 1)
+        # return torch.cat([memb, feature, singers, genre], dim = 1)
 
 
 
@@ -156,6 +156,7 @@ class AttentionEncoder(nn.Module):
         return torch.cat([musicvec, uservec], dim = 1), weight
 
 
+
 class RelationModule(nn.Module):
     def __init__(self, config):
         super(RelationModule, self).__init__()
@@ -166,12 +167,32 @@ class RelationModule(nn.Module):
         nn.init.xavier_normal_(self.memory)
 
 
-    def forward(self, support, query):
+    def forward(self, support, query, score):
         ans = support.matmul(self.memory)
         ans = torch.bmm(ans, query.unsqueeze(2)).squeeze(2)
-        #ans = torch.sigmoid(ans)
-        ans = torch.softmax(ans, dim = 1)
-        return torch.bmm(ans.unsqueeze(1), support).squeeze(1)
+        ans = torch.sigmoid(ans)
+        ans = ans * score
+        # ans = torch.softmax(ans, dim = 1)
+    
+        return torch.bmm(ans.unsqueeze(1), support).squeeze(1), ans
+
+
+class MultiHeadRelationModule(nn.Module):
+    def __init__(self, config):
+        super(MultiHeadRelationModule, self).__init__()
+
+        self.emb_size = config.getint('model', 'emb_size')
+        self.attn_head = 10
+
+        self.attn = nn.MultiheadAttention(2 * self.emb_size, self.attn_head)
+
+    def forward(self, support, query, score):
+        qqq = torch.transpose(query.unsqueeze(1), 0, 1)
+        sss = torch.transpose(support, 0, 1)
+        ans, weight = self.attn(qqq, sss, sss)
+        
+        # ans, weight = self.attn(query.unsqueeze(1), support, support)
+        return ans.squeeze(0), weight.squeeze(1)
 
 
 class RelationNetwork(nn.Module):
@@ -181,9 +202,11 @@ class RelationNetwork(nn.Module):
         self.emb_size = config.getint('model', 'emb_size')
         
         self.encoder = AttentionEncoder(config)
-        self.relation = RelationModule(config)
-        
+        # self.relation = RelationModule(config)
+        self.relation = MultiHeadRelationModule(config)
+
         self.out = nn.Linear(self.emb_size * 4, 2)
+        # self.out = nn.Linear(self.emb_size * 2, 2)
         self.relu = nn.ReLU(True)
 
     def init_multi_gpu(self, device):
@@ -195,10 +218,11 @@ class RelationNetwork(nn.Module):
         candidate = data['candidate']
         history = data['history']
         labels = data['label']
-
+        score = data['score']
         
-        candidate, cweight = self.encoder(candidate, users)
 
+        candidate, cweight = self.encoder(candidate, users)
+        
         batch = labels.shape[0]
         k = history['id'].shape[1]
         for key in history:
@@ -207,13 +231,23 @@ class RelationNetwork(nn.Module):
         history = history.view(batch, k, -1)
         
 
-        interest = self.relation(history, candidate)
+        interest, similarity = self.relation(history, candidate, score)
         
-        y = self.out(torch.cat([interest, candidate], dim = 1))
+        # similarity = torch.mean(similarity, dim = 1).unsqueeze(1)
+        similarity = torch.max(similarity, dim = 1)[0].unsqueeze(1)
+        y1 = torch.cat([1 - similarity, similarity], dim = 1)
         
-        loss = criterion(y, labels) + self.relu(torch.mean(hweight) - 0.7) # - torch.mean(torch.log(torch.max(hweight.squeeze(), dim = 1)[0]))
+        y2 = self.out(torch.cat([interest, candidate], dim = 1))
+        
+        # y2 = self.out(candidate)
+        
+        loss = criterion(y2, labels) + criterion(y1, labels)#+ self.relu(torch.mean(hweight) - 0.7) # - torch.mean(torch.log(torch.max(hweight.squeeze(), dim = 1)[0]))
         # loss = criterion(y, labels) - torch.mean(torch.log(torch.max(hweight.squeeze(), dim = 1)[0]))
-
+        
+        
+        y = torch.softmax(y1, dim = 1) + torch.softmax(y2, dim = 1)
+        y = y * 0.5
+        
         accu, acc_result = calc_accuracy(y, labels, config, acc_result)
 
         return {"loss": loss, "accuracy": accu, "result": torch.max(y, dim=1)[1].cpu().numpy(), "x": y,

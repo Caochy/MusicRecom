@@ -31,13 +31,14 @@ class ActivationUnit(nn.Module):
 
         out = self.linear(out) # batch, k, 1
         
-        out = torch.sigmoid(out)
+        weight = torch.sigmoid(out)
         
-        out = torch.bmm(torch.transpose(out, 1, 2), history)
+                
+        out = torch.bmm(torch.transpose(weight, 1, 2), history)
         out = out.squeeze(1)
         # out = self.prelu(out)
 
-        return out
+        return out#, weight.squeeze(1)
 
 
 class DeepInterest(nn.Module):
@@ -58,7 +59,7 @@ class DeepInterest(nn.Module):
         )
         '''
         #self.out1 = nn.Linear(self.hidden * 6, self.hidden)
-        self.out1 = nn.Linear(self.hidden * 6, 2)
+        self.out1 = nn.Linear(self.hidden * 4, 2)
         self.out2 = nn.Linear(self.hidden, 2)
 
         self.relu = nn.ReLU(True)
@@ -87,7 +88,7 @@ class DeepInterest(nn.Module):
         #    print(users)
         candidate = self.music_encoder(candidate)
 
-
+        
         batch = labels.shape[0]
         k = history['id'].shape[1]
         for key in history:
@@ -97,8 +98,9 @@ class DeepInterest(nn.Module):
         
         
         sumpooling = self.act(history, candidate)
-
-        feature = torch.cat([users, sumpooling, candidate], dim = 1)
+        
+        # feature = torch.cat([users, sumpooling, candidate], dim = 1)
+        feature = torch.cat([users, candidate], dim = 1)
         #print(feature.shape)
 
         #y = self.out2(self.relu(self.out1(feature)))

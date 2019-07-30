@@ -29,7 +29,7 @@ class MusicEncoder(nn.Module):
         
         self.MusicEmb = nn.Embedding(42800, self.emb_size)
         
-        feature_size = self.emb_size * 4
+        feature_size = self.emb_size * 3
         self.out = nn.Linear(feature_size, self.hidden * 2)
 
         self.init_embedding(self.singers)
@@ -68,8 +68,8 @@ class MusicEncoder(nn.Module):
         genre = self.genre(genre).squeeze()
 
 
-        embs = torch.cat([memb, feature, singers, genre], dim = 1)
-        # embs = torch.cat([memb, singers, genre], dim = 1)
+        embs = torch.cat([feature, singers, genre], dim = 1)
+        # embs = torch.cat([memb, feature, singers, genre], dim = 1)
         
         return self.out(embs)
         
