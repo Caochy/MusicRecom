@@ -12,7 +12,7 @@ class AdLoader:
         fin = open(ad_info_path, 'r')
         for line in fin:
             line = json.loads(line)
-            self.ad_info['adgroup_id'] = line
+            self.ad_info[line['adgroup_id']] = line
         
         fin = open(config.get('data', 'ad_info2id_path'), 'r')
         self.customer2id = json.loads(fin.readline())
@@ -25,6 +25,7 @@ class AdLoader:
             '430539_1007': 1
         } 
     def price2id(self, price):
+        price = float(price)
         if price < 10:
             return 0
         elif price < 30:
@@ -54,7 +55,10 @@ class AdLoader:
             return dic[key]
         else:
             return len(dic)
+    
+    def check(self, adid):
 
+        return adid in self.ad_info
 
     def format(self, adids, pids):
         ans = {'cate': [], 'customer': [], 'brand': [], 'campaign': [], 'price': [], 'id': [], 'pids': [self.pid2id[v] for v in pids]}
@@ -64,7 +68,7 @@ class AdLoader:
             ans['brand'].append(self.change2id(self.brand2id, self.ad_info[ad]['brand']))
             ans['campaign'].append(self.change2id(self.campaign2id, self.ad_info[ad]['campaign_id']))
             ans['price'].append(self.price2id(self.ad_info[ad]['price']))
-            ans['id'].appens(self.adid2id[ad])
+            ans['id'].append(self.adid2id[ad])
 
         for key in ans:
             ans[key] = torch.tensor(ans[key], dtype = torch.long)
@@ -85,11 +89,17 @@ class UserLoader:
         fin = open(config.get('data', 'user_info2id_path'), 'r')
         self.userid2id = json.loads(fin.readline())
 
+    def check(self, uid):
+        return uid in self.user_info
+
     def format(self, userids):
         ans = {'age': [], 'pvalue': [], 'shop': [], 'occu': [], 'city': [], 'gender': [], 'cms': [], 'id': []}
         for u in userids:
             ans['age'].append(int(self.user_info[u]['age_level']))
-            ans['pvalue'].append(int(self.user_info[u]['pvalue_level']) - 1)
+            pvalue = int(self.user_info[u]['pvalue_level'])
+            if pvalue < 0:
+                pvalue = 0
+            ans['pvalue'].append(pvalue)
             ans['shop'].append(int(self.user_info[u]['shopping_level']) - 1)
             ans['occu'].append(int(self.user_info[u]['occupation']))
             city = int(self.user_info[u]['new_user_class_level'])
@@ -114,15 +124,23 @@ class AlibabaFormatter:
 
     def check(self, data, config):
         data = json.loads(data)
+        # return data
+        if not self.ad.check(data['candidate']):
+            return None
+        if not self.user.check(data['userid']):
+            return None
+        for v in data['history']:
+            if not self.ad.check(v['ad']):
+                return None
         return data
 
 
     def format(self, alldata, config, transformer, mode):
         users = self.user.format([d['userid'] for d in alldata])
-        candidate = self.ad.format([d['candidate'] for d in all_data], [d['candidate_pid'] for d in all_data])
+        candidate = self.ad.format([d['candidate'] for d in alldata], [d['candidate_pid'] for d in alldata])
 
         history = [d['history'] for d in alldata]
-        history_res = [self.ad.format([d['candidate'] for d in his], [d['pid'] for d in his]) for his in history]
+        history_res = [self.ad.format([d['ad'] for d in his], [d['pid'] for d in his]) for his in history]
         
         history_ans = {}
         keys = ['cate', 'customer', 'brand', 'campaign', 'price', 'id', 'pids']
@@ -130,6 +148,8 @@ class AlibabaFormatter:
             history_ans[key] = torch.cat([d[key].unsqueeze(0) for d in history_res], dim = 0)
 
 
-
-        return {'candidate': candidate, 'users': users, 'label': labels, 'history': history_ans, 'score': score}
+        labels = [d['label'] for d in alldata]
+        labels = torch.tensor(labels, dtype = torch.long)
+               
+        return {'candidate': candidate, 'users': users, 'label': labels, 'history': history_ans, 'score': None}
   

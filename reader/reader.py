@@ -14,6 +14,9 @@ from reader.formatter.OurFormatter import OurFormatter
 from reader.formatter.NCFFormatter import NCFFormatter
 from reader.formatter.DeepFMFormatter import DeepFMFormatter
 from reader.formatter.NCFFormatter_Ali import NCFFormatter_Ali
+from reader.formatter.AlibabaFormatter import AlibabaFormatter
+
+
 def init_formatter(config):
     global formatter
     useable_list = {
@@ -24,7 +27,8 @@ def init_formatter(config):
         "NCF": NCFFormatter,
         "NCF_Ali":NCFFormatter_Ali,
         "OurFormatter": OurFormatter,
-        "xDeepFM":DeepFMFormatter
+        "xDeepFM":DeepFMFormatter,
+        "Alibaba": AlibabaFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
         formatter = useable_list[config.get("data", "formatter")](config)

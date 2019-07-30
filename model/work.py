@@ -66,7 +66,7 @@ def valid_net(net, valid_dataset, use_gpu, config, epoch, writer=None):
             alllabel.append(data['label'])
 
             if result_out:
-                print(outputs.tolist(), file = fout)
+                print(json.dumps(outputs.tolist()), file = fout)
 
                 #for index in range(len(data['uid'])):
                 #    print("%s\t\t%d" % (data['uid'][index], results['result'][index]), file = fout)
