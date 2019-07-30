@@ -20,7 +20,10 @@ class AdLoader:
         self.campaign2id = json.loads(fin.readline())
         self.cate2id = json.loads(fin.readline())
         self.adid2id = json.loads(fin.readline())
-    
+        self.pid2id = {
+            '430548_1007': 0,
+            '430539_1007': 1
+        } 
     def price2id(self, price):
         if price < 10:
             return 0
@@ -54,7 +57,7 @@ class AdLoader:
 
 
     def format(self, adids, pids):
-        ans = {'cate': [], 'customer': [], 'brand': [], 'campaign': [], 'price': [], 'id': []}
+        ans = {'cate': [], 'customer': [], 'brand': [], 'campaign': [], 'price': [], 'id': [], 'pids': [self.pid2id[v] for v in pids]}
         for ad in adids:
             ans['cate'].append(self.change2id(self.cate2id, self.ad_info[ad]['cate_id']))
             ans['customer'].append(self.change2id(self.customer2id, self.ad_info[ad]['customer']))
@@ -67,6 +70,7 @@ class AdLoader:
             ans[key] = torch.tensor(ans[key], dtype = torch.long)
 
         return ans
+
 
 class UserLoader:
     def __init__(self, config):
@@ -96,7 +100,6 @@ class UserLoader:
             ans['cms'].append(int(self.user_info[u]['cms_group_id']))
             ans['id'].append(self.userid2id[u])
 
-
         for key in ans:
             ans[key] = torch.tensor(ans[key], dtype = torch.long)
         return ans
@@ -115,10 +118,18 @@ class AlibabaFormatter:
 
 
     def format(self, alldata, config, transformer, mode):
-        
-
         users = self.user.format([d['userid'] for d in alldata])
-        candidate = self.ad.format([d['candidate']])
+        candidate = self.ad.format([d['candidate'] for d in all_data], [d['candidate_pid'] for d in all_data])
+
+        history = [d['history'] for d in alldata]
+        history_res = [self.ad.format([d['candidate'] for d in his], [d['pid'] for d in his]) for his in history]
         
-        return {'candidate': candidate, 'users': users, 'label': labels, 'history': history, 'score': score}
+        history_ans = {}
+        keys = ['cate', 'customer', 'brand', 'campaign', 'price', 'id', 'pids']
+        for key in keys:
+            history_ans[key] = torch.cat([d[key].unsqueeze(0) for d in history_res], dim = 0)
+
+
+
+        return {'candidate': candidate, 'users': users, 'label': labels, 'history': history_ans, 'score': score}
   
