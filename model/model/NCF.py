@@ -30,8 +30,8 @@ class NCF(nn.Module):
             else:print("no MLP_model:",self.MLP_model)
         
 
-        user_num=190662
-        item_num=42800
+        user_num=config.getint('data','user_num')
+        item_num=config.getint('data','item_num')
         factor_num=config.getint('model','factor_num')
         num_layers=config.getint('model','num_layers')
         self.dropout=config.getfloat('model','dropout')

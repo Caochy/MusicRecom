@@ -13,6 +13,7 @@ from reader.formatter.OurFormatter import OurFormatter
 
 from reader.formatter.NCFFormatter import NCFFormatter
 from reader.formatter.DeepFMFormatter import DeepFMFormatter
+from reader.formatter.NCFFormatter_Ali import NCFFormatter_Ali
 def init_formatter(config):
     global formatter
     useable_list = {
@@ -21,7 +22,8 @@ def init_formatter(config):
         "LRMM": MusicPairFormatter,
         "DeepInterest": DeepInterestFormatter,
         "NCF": NCFFormatter,
-        "OurFormatter": OurFormatter
+        "NCF_Ali":NCFFormatter_Ali,
+        "OurFormatter": OurFormatter,
         "xDeepFM":DeepFMFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
