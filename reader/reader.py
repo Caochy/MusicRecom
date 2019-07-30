@@ -22,6 +22,7 @@ def init_formatter(config):
         "DeepInterest": DeepInterestFormatter,
         "NCF": NCFFormatter,
         "OurFormatter": OurFormatter
+        "xDeepFM":DeepFMFormatter
     }
     if config.get("data", "formatter") in useable_list.keys():
         formatter = useable_list[config.get("data", "formatter")](config)
