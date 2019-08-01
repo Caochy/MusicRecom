@@ -41,7 +41,9 @@ class MusicFormatter:
             if singer_num[s] < singer_num_th:
                 continue
             self.singer2id[s] = len(self.singer2id)
-
+        
+        # fout = open('singer2id.json', 'w')
+        # print(json.dumps(self.singer2id, ensure_ascii = False), file = fout)
         print('singer2id: ', len(self.singer2id))
 
 

@@ -58,7 +58,7 @@ class User(nn.Module):
         gender = self.gender(gender).unsqueeze(1)
         
         # return torch.cat([uemb, age, gender], dim = 1)
-        # return torch.cat([age, gender, article, moments], dim = 1)
+        return torch.cat([uemb, age, gender, article], dim = 1)
         return torch.cat([uemb, age, gender, article, moments], dim = 1)
 
 
@@ -98,6 +98,14 @@ class Item(nn.Module):
         singers = music['singer']
         genre = music['genre']
         memb = music['id']
+        '''
+        import json
+        fout = open('singer.json', 'w')
+        for i in range(417):
+            print('%d\t%s' %  (i, json.dumps(self.singers(torch.tensor([i], dtype = torch.long)).tolist()[0])), file = fout)
+        fout.close()
+        gg
+        '''
         
         feature = self.batchnorm(feature)
 
@@ -106,7 +114,7 @@ class Item(nn.Module):
         singers = self.singers(singers).squeeze().unsqueeze(1)
         genre = self.genre(genre).squeeze().unsqueeze(1)
         
-        # return torch.cat([memb, singers, genre], dim = 1)
+        # return torch.cat([feature, singers], dim = 1)
         return torch.cat([feature, singers, genre], dim = 1)
         # return torch.cat([memb, feature, singers, genre], dim = 1)
 
